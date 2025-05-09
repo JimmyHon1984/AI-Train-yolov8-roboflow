@@ -12,14 +12,8 @@
 
 在開始之前，請確保您的系統已安裝以下軟體：
 
-1.  **Python** (建議版本 3.8 或更高版本)
+1.  **Python** (建議版本 3.11 或更高版本)
 2.  **pip** (Python 套件安裝程式)
-3.  **curl** (用於從 URL 下載檔案的命令列工具)
-4.  **unzip** (用於解壓縮 ZIP 檔案的命令列工具)
-
-    *   在 Debian/Ubuntu 上: `sudo apt update && sudo apt install curl unzip`
-    *   在 macOS 上 (通常已內建，或使用 Homebrew): `brew install curl unzip`
-    *   在 Windows 上: 可以使用 Git Bash (通常包含 curl 和 unzip)，或 Windows Subsystem for Linux (WSL)。
 
 ## 設定步驟
 
@@ -67,7 +61,7 @@
 
 打開 `train_export_model.py` 檔案，並修改頂部的「用戶配置」部分：
 
-*   **`DATA_YAML_PATH`**: **(必需)** 將此變數的值更新為您在上一步中找到的 `data.yaml` 檔案的完整路徑。
+*   **`DATA_YAML_PATH`**: **(必需)** 將此變數的值更新為您在上一步數據集中找到的 `data.yaml` 檔案的完整路徑。
     ```python
     # 範例 (Linux/MacOS):
     DATA_YAML_PATH = "/path/to/your/dataset_folder/data.yaml"
