@@ -127,7 +127,6 @@ if __name__ == "__main__":
     if not DATA_YAML_PATH:
         print("\n[警告] 'DATA_YAML_PATH' 尚未在腳本中設定！")
         print("請打開 'train_export_model.py' 並在頂部的配置區域中設定 'DATA_YAML_PATH'。")
-        print("該路徑應為使用 curl 命令下載並解壓縮數據集後，")
         print("在解壓縮的資料夾中找到的 data.yaml 檔案的完整路徑。")
         print("請參考 README.md 中的數據下載步驟。")
         print("腳本無法繼續，直到此路徑被設定。\n")

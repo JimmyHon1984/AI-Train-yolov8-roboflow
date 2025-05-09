@@ -36,6 +36,9 @@
     ```bash
     pip install -r requirements.txt
     ```
+
+    ***如果 traino_export_model 轉換模型中出現問題***:
+    ```
     如果您在導出為 TF.js 格式時遇到問題，您可能需要明確安裝 `tensorflowjs`：
     ```bash
     pip install tensorflowjs
@@ -45,17 +48,20 @@
 
 ### 1. 下載數據集
 
-本專案使用 `curl` 命令直接從 Roboflow Universe 下載預先準備好的數據集。
+本專案直接從 Roboflow Universe 下載預先準備好的數據集。
 
 *   **執行以下命令以下載並解壓縮數據集：**
-    ```bash
-    curl -L "https://universe.roboflow.com/ds/Az7Nm6mc97?key=Gcijbs26Gz" > roboflow.zip; unzip roboflow.zip; rm roboflow.zip
-    ```
-    *   **注意**: 此命令會下載一個名為 `roboflow.zip` 的檔案，然後解壓縮它，最後刪除 `roboflow.zip`。
-    *   解壓縮後，通常會產生一個包含數據集檔案的資料夾 (例如，資料夾名稱可能為 `test-orange-2` 或類似名稱，這取決於 Roboflow 上的專案設定)。
-    *   **重要**: 進入解壓縮後的資料夾，找到 `data.yaml` 檔案。您需要**複製此 `data.yaml` 檔案的完整路徑**，以用於下一步的配置。
+    
+    ### 執行 Python 腳本下載花卉數據集
 
-    例如，如果命令在 `/home/user/my_project` 中執行，並且 `roboflow.zip` 解壓縮到一個名為 `test-orange-2` 的資料夾，則 `data.yaml` 的路徑可能是 `/home/user/my_project/test-orange-2/data.yaml`。
+    此選項將下載一個花卉數據集，其中包含約 3000 張圖片，涵蓋 13 個類別。
+
+    執行 `get_data.py` 腳本以下載數據集：
+
+    ```bash
+    python get_data.py
+    ```
+
 
 ### 2. 配置訓練腳本
 
