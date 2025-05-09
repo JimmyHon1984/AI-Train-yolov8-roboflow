@@ -8,12 +8,17 @@ from pathlib import Path # 使用 pathlib 處理路徑更方便
 # ==============================================================================
 # 1. 數據集 YAML 檔案的路徑:
 #    !! 重要 !! 
-#    執行 download_data.py 後，該腳本會輸出 data.yaml 的完整路徑。
-#    請將該路徑複製並粘貼到下面的 DATA_YAML_PATH 變數中。
+#    在使用 `curl` 命令下載並解壓縮數據集後 (如 README.md 中所述)，
+#    您需要找到解壓縮後資料夾內的 data.yaml 檔案，
+#    並將其完整路徑複製並粘貼到下面的 DATA_YAML_PATH 變數中。
 #    確保路徑是正確的，並且檔案存在。
+#
 #    範例 (Windows): DATA_YAML_PATH = r"C:\Users\YourUser\project\datasets\test-orange-2\data.yaml"
 #    範例 (Linux/MacOS): DATA_YAML_PATH = "/home/YourUser/project/datasets/test-orange-2/data.yaml"
-DATA_YAML_PATH = ""  # <--- 請務必更新此路徑！例如: r"/content/datasets/test-orange-2/data.yaml"
+#    範例 (Colab，如果您將數據集上傳到 Colab 的某個路徑):
+#    DATA_YAML_PATH = "/content/test-orange-2/data.yaml" 
+#
+DATA_YAML_PATH = ""  # <--- 請務必更新此路徑！例如: r"/content/test-orange-2/data.yaml"
 
 # 2. 模型和訓練參數:
 BASE_MODEL_PT = "yolov8m.pt"    # 用於開始訓練的預訓練模型 (.pt 檔案)
@@ -49,7 +54,8 @@ def train_and_export_yolo_model(
         print(f"[錯誤] 數據集設定檔 (data.yaml) 未找到或未設定！")
         print(f"  檢查的路徑: {data_yaml_path.resolve() if data_yaml_path_str else '未設定'}")
         print(f"  請確保 'train_export_model.py' 腳本頂部的 'DATA_YAML_PATH' 已正確設定。")
-        print(f"  您應該先執行 'download_data.py' 並將其輸出的 data.yaml 路徑複製到此處。")
+        print(f"  您應該先按照 README.md 中的指示使用 curl 命令下載並解壓縮數據集，")
+        print(f"  然後將解壓縮後資料夾中 data.yaml 的完整路徑複製到此處。")
         return
 
     # 1. 載入一個基礎 YOLOv8 模型
@@ -121,7 +127,9 @@ if __name__ == "__main__":
     if not DATA_YAML_PATH:
         print("\n[警告] 'DATA_YAML_PATH' 尚未在腳本中設定！")
         print("請打開 'train_export_model.py' 並在頂部的配置區域中設定 'DATA_YAML_PATH'。")
-        print("該路徑應為執行 'download_data.py' 後輸出的 data.yaml 檔案的完整路徑。")
+        print("該路徑應為使用 curl 命令下載並解壓縮數據集後，")
+        print("在解壓縮的資料夾中找到的 data.yaml 檔案的完整路徑。")
+        print("請參考 README.md 中的數據下載步驟。")
         print("腳本無法繼續，直到此路徑被設定。\n")
     else:
         print(f"將使用以下配置進行訓練和導出：")

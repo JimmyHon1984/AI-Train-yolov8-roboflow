@@ -26,8 +26,8 @@
 1.  **複製 (或下載) 專案檔案**:
     如果您是從 Git 儲存庫取得此專案：
     ```bash
-    git clone <your-repository-url>
-    cd <your-repository-name>
+    git clone https://github.com/JimmyHon1984/AI-Train-yolov8-roboflow.git
+    cd AI-Train-yolov8-roboflow
     ```
     否則，請確保您已將 `train_export_model.py` 和 `requirements.txt` 檔案放置在您的工作目錄中。
 
