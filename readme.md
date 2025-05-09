@@ -86,5 +86,8 @@
 
 配置完成後，在終端機中執行以下命令：
 
+在第一次運行, ultralytics 會檢查並安裝缺失的 dependency
+
 ```bash
 python train_export_model.py
+```
