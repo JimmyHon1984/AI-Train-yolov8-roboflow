@@ -1,4 +1,5 @@
 roboflow
 ultralytics
-# tensorflowjs (通常由 ultralytics 的 export 功能間接處理，或您可能需要手動安裝)
-# tensorflow (如果 ultralytics export tfjs 需要特定版本)
+tensorflowjs #(通常由 ultralytics 的 export 功能間接處理，或您可能需要手動安裝)
+tensorflow #(如果 ultralytics export tfjs 需要特定版本)
+pyyaml
