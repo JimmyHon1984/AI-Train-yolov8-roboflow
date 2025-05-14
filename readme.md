@@ -57,31 +57,61 @@
     ```
 
 
-### 2. 配置訓練腳本
+### 2. 準備自定義數據集樣本
 
-打開 `train_export_model.py` 檔案，並修改頂部的「用戶配置」部分：
+如果您想從原始數據集中創建一個較小的樣本以加速訓練或測試，可以使用 dataset_sampler.py 腳本：
 
-*   **`DATA_YAML_PATH`**: **(必需)** 將此變數的值更新為您在上一步數據集中找到的 `data.yaml` 檔案的完整路徑。
-    ```python
-    # 範例 (Linux/MacOS):
-    DATA_YAML_PATH = "/path/to/your/dataset_folder/data.yaml"
-    # 範例 (Windows):
-    # DATA_YAML_PATH = r"C:\path\to\your\dataset_folder\data.yaml"
+*   **執行以下命令以調整數據集：**
+    ```bash
+    python dataset_sampler.py \
+        --src original_dataset \
+        --total 500 \
+        --train-ratio 8 \
+        --test-ratio 1 \
+        --valid-ratio 1 \
+        --output sampled_dataset
     ```
 
-*   **`BASE_MODEL_PT`**: (可選) 預設為 `"yolov8m.pt"`。您可以更改為其他 YOLOv8 模型，如 `"yolov8s.pt"` 或 `"yolov8l.pt"`。
-*   **`EPOCHS`**: (可選) 訓練的週期數，預設為 `20`。
-*   **`IMG_SIZE`**: (可選) 訓練和導出時的圖像大小，預設為 `640`。
-*   **`PROJECT_DIR_NAME`**: (可選) 儲存訓練結果的父目錄名稱，預設為 `"training_runs"`。
-*   **`EXPERIMENT_NAME`**: (可選) 特定訓練運行的子目錄名稱，預設為 `"orange_detection_exp"`。
-*   **`EXPORT_FORMAT`**: (可選) 導出的模型格式，預設為 `"tfjs"`。其他選項包括 `'onnx'`, `'torchscript'`, `'tflite'` 等。
+**參數說明：**
+
+*   **`--src 或 -s`**: **(必需)** 原始數據集的路徑
+*   **`--total 或 -t`**: **(必需)** 要採樣的圖像總數
+*   **`--train-ratio 或 -tr`**: (可選) 訓練集比例，默認值為 7
+*   **`--test-ratio 或 -te`**: (可選) 測試集比例，默認值為 1
+*   **`--valid-ratio 或 -v`**: (可選) 驗證集比例，默認值為 2
+*   **`--output 或 -o`**: **(必需)** 採樣數據集的輸出目錄
+
+腳本將：
+
+1. 從原始數據集中隨機選取指定數量的圖像和對應的標籤文件
+2. 按指定比例分配到訓練、測試和驗證集
+3. 在輸出目錄中創建相同的目錄結構
+4. 創建更新後的 data.yaml 文件以供訓練使用
 
 ### 3. 執行訓練與導出
 
-配置完成後，在終端機中執行以下命令：
+完成後，開始執行訓練模型與導出，在終端機中執行以下命令：
 
 在第一次運行, ultralytics 會檢查並安裝缺失的 dependency
 
-```bash
-python train_export_model.py
-```
+*   **執行以下命令以訓練模型與導出：**
+    ```bash
+    python train_export_model.py \
+        --data_yaml /content/AI-Train-yolov8-roboflow/sampler/data.yaml \  
+        --base_model yolov8m.pt \
+        --epochs 2 \
+        --img_size 640 \
+        --project_dir my_training \
+        --experiment_name fruit_detector \
+        --export_format tfjs
+    ```
+
+**參數說明：**
+
+*   **`--data_yaml`**: **(必需)** 將此變數的值更新為您在上一步數據集中找到的 `data.yaml` 檔案的完整路徑。
+*   **`--base_model`**: (可選) 預設為 `"yolov8m.pt"`。您可以更改為其他 YOLOv8 模型，如 `"yolov8s.pt"` 或 `"yolov8l.pt"`。
+*   **`--epochs`**: (可選) 訓練的週期數，預設為 `20`。
+*   **`--img_size`**: (可選) 訓練和導出時的圖像大小，預設為 `640`。
+*   **`--project_dir my_training`**: (可選) 儲存訓練結果的父目錄名稱，預設為 `"training_runs"`。
+*   **`--experiment_name`**: (可選) 特定訓練運行的子目錄名稱，預設為 `"orange_detection_exp"`。
+*   **`--export_format`**: (可選) 導出的模型格式，預設為 `"tfjs"`。其他選項包括 `'onnx'`, `'torchscript'`, `'tflite'` 等。

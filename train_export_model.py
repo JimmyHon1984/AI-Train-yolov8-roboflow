@@ -1,41 +1,60 @@
 # train_export_model.py
 import os
+import argparse
 from ultralytics import YOLO
 from pathlib import Path # 使用 pathlib 處理路徑更方便
 
-# --- 用戶配置 ---
-# 請在此處修改以下參數以適合您的需求。
-# ==============================================================================
-# 1. 數據集 YAML 檔案的路徑:
-#    !! 重要 !! 
-#    在使用 `curl` 命令下載並解壓縮數據集後 (如 README.md 中所述)，
-#    您需要找到解壓縮後資料夾內的 data.yaml 檔案，
-#    並將其完整路徑複製並粘貼到下面的 DATA_YAML_PATH 變數中。
-#    確保路徑是正確的，並且檔案存在。
-#
-#    範例 (Windows): DATA_YAML_PATH = r"C:\Users\YourUser\project\datasets\test-orange-2\data.yaml"
-#    範例 (Linux/MacOS): DATA_YAML_PATH = "/home/YourUser/project/datasets/test-orange-2/data.yaml"
-#    範例 (Colab，如果您將數據集上傳到 Colab 的某個路徑):
-#    DATA_YAML_PATH = "/content/test-orange-2/data.yaml" 
-#
-DATA_YAML_PATH = ""  # <--- 請務必更新此路徑！例如: r"/content/test-orange-2/data.yaml"
-
-# 2. 模型和訓練參數:
-BASE_MODEL_PT = "yolov8m.pt"    # 用於開始訓練的預訓練模型 (.pt 檔案)
-EPOCHS = 20                     # 訓練的 epoch 數量
-IMG_SIZE = 640                  # 訓練和導出時的圖像大小 (像素)
-
-# 3. 輸出目錄和實驗名稱:
-#    所有訓練運行將儲存在 'PROJECT_DIR_NAME' 下的 'EXPERIMENT_NAME' 子目錄中。
-#    例如，如果 PROJECT_DIR_NAME="training_runs" 且 EXPERIMENT_NAME="orange_v1",
-#    則結果會儲存在 "training_runs/orange_v1/"
-PROJECT_DIR_NAME = "training_runs"
-EXPERIMENT_NAME = "orange_detection_exp" # 您可以修改此名稱以區分不同的訓練運行
-
-# 4. 導出格式:
-EXPORT_FORMAT = "tfjs"          # 例如 'tfjs', 'onnx', 'torchscript', 'tflite'
-# ==============================================================================
-# --- 配置結束 ---
+def parse_arguments():
+    """解析命令列參數以設定 YOLOv8 訓練和導出參數。"""
+    parser = argparse.ArgumentParser(
+        description="訓練並導出自定義 YOLOv8 模型。"
+    )
+    
+    # 參數設定
+    parser.add_argument(
+        "--data_yaml", 
+        help="數據集 YAML 文件的路徑。"
+    )
+    
+    parser.add_argument(
+        "--base_model", 
+        default="yolov8m.pt",
+        help="預訓練模型文件。預設值: yolov8m.pt"
+    )
+    
+    parser.add_argument(
+        "--epochs", 
+        type=int, 
+        default=20,
+        help="訓練的 epoch 數量。預設值: 20"
+    )
+    
+    parser.add_argument(
+        "--img_size", 
+        type=int, 
+        default=640,
+        help="訓練和導出的圖像大小（像素）。預設值: 640"
+    )
+    
+    parser.add_argument(
+        "--project_dir", 
+        default="training_runs",
+        help="保存訓練結果的目錄。預設值: training_runs"
+    )
+    
+    parser.add_argument(
+        "--experiment_name", 
+        default="orange_detection_exp",
+        help="此次訓練實驗的名稱。預設值: orange_detection_exp"
+    )
+    
+    parser.add_argument(
+        "--export_format", 
+        default="tfjs",
+        help="導出模型的格式。選項: tfjs, onnx, torchscript, tflite。預設值: tfjs"
+    )
+    
+    return parser.parse_args()
 
 def train_and_export_yolo_model(
     data_yaml_path_str, 
@@ -53,9 +72,9 @@ def train_and_export_yolo_model(
     if not data_yaml_path_str or not data_yaml_path.exists():
         print(f"[錯誤] 數據集設定檔 (data.yaml) 未找到或未設定！")
         print(f"  檢查的路徑: {data_yaml_path.resolve() if data_yaml_path_str else '未設定'}")
-        print(f"  請確保 'train_export_model.py' 腳本頂部的 'DATA_YAML_PATH' 已正確設定。")
+        print(f"  請確保提供了正確的 data.yaml 檔案路徑。")
         print(f"  您應該先按照 README.md 中的指示使用 curl 命令下載並解壓縮數據集，")
-        print(f"  然後將解壓縮後資料夾中 data.yaml 的完整路徑複製到此處。")
+        print(f"  然後將解壓縮後資料夾中 data.yaml 的完整路徑提供給腳本。")
         return
 
     # 1. 載入一個基礎 YOLOv8 模型
@@ -124,30 +143,36 @@ if __name__ == "__main__":
     print("YOLOv8 模型訓練與導出腳本")
     print("="*50)
 
-    if not DATA_YAML_PATH:
-        print("\n[警告] 'DATA_YAML_PATH' 尚未在腳本中設定！")
-        print("請打開 'train_export_model.py' 並在頂部的配置區域中設定 'DATA_YAML_PATH'。")
-        print("在解壓縮的資料夾中找到的 data.yaml 檔案的完整路徑。")
+    # 解析命令列參數
+    args = parse_arguments()
+    
+    # 如果命令列參數中沒有指定數據集路徑，則檢查原始腳本中的設定
+    data_yaml_path = args.data_yaml or ""
+    
+    if not data_yaml_path:
+        print("\n[警告] 數據集 YAML 路徑未設定！")
+        print("請使用 --data_yaml 參數提供 data.yaml 檔案的路徑。")
+        print("例如: python train_export_model.py --data_yaml /path/to/your/data.yaml")
         print("請參考 README.md 中的數據下載步驟。")
         print("腳本無法繼續，直到此路徑被設定。\n")
     else:
         print(f"將使用以下配置進行訓練和導出：")
-        print(f"  數據集 YAML: {DATA_YAML_PATH}")
-        print(f"  基礎模型: {BASE_MODEL_PT}")
-        print(f"  Epochs: {EPOCHS}")
-        print(f"  圖像大小: {IMG_SIZE}")
-        print(f"  專案目錄: {PROJECT_DIR_NAME}")
-        print(f"  實驗名稱: {EXPERIMENT_NAME}")
-        print(f"  導出格式: {EXPORT_FORMAT}\n")
+        print(f"  數據集 YAML: {data_yaml_path}")
+        print(f"  基礎模型: {args.base_model}")
+        print(f"  Epochs: {args.epochs}")
+        print(f"  圖像大小: {args.img_size}")
+        print(f"  專案目錄: {args.project_dir}")
+        print(f"  實驗名稱: {args.experiment_name}")
+        print(f"  導出格式: {args.export_format}\n")
 
         train_and_export_yolo_model(
-            DATA_YAML_PATH,
-            BASE_MODEL_PT,
-            EPOCHS,
-            IMG_SIZE,
-            PROJECT_DIR_NAME,
-            EXPERIMENT_NAME,
-            EXPORT_FORMAT
+            data_yaml_path,
+            args.base_model,
+            args.epochs,
+            args.img_size,
+            args.project_dir,
+            args.experiment_name,
+            args.export_format
         )
     print("\n訓練和導出流程已執行。")
     print("="*50)
