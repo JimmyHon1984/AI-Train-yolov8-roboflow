@@ -32,7 +32,6 @@
     ```
 
     ***如果 traino_export_model 轉換模型中出現問題***:
-    ```
     如果您在導出為 TF.js 格式時遇到問題，您可能需要明確安裝 `tensorflowjs`：
     ```bash
     pip install tensorflowjs
@@ -62,6 +61,9 @@
 如果您想從原始數據集中創建一個較小的樣本以加速訓練或測試，可以使用 dataset_sampler.py 腳本：
 
 *   **執行以下命令以調整數據集：**
+
+    此選項將數據集分拆一部份，創建一個較小的樣本以加速訓練或測試。
+    
     ```bash
     python dataset_sampler.py \
         --src original_dataset \
