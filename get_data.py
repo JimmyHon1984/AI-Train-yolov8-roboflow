@@ -1,4 +1,4 @@
-# This dataset is flower
+# This dataset is flower (13 types)
 
 from roboflow import Roboflow
 rf = Roboflow(api_key="fXWidy1XD85NHYANrSsh")
