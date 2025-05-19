@@ -79,21 +79,28 @@
     *   執行該目錄下的訓練腳本 (例如 `run_8_trains_in_exp.sh` 或針對 `640_50_1000` 的單一訓練腳本)。
 
         *   **對於多個並行訓練 (例如 `run_8_trains_in_exp.sh`)**：
+            
+            ```bash
+            ./run_8_trains_in_exp.sh 
+            ```
+
             此類型腳本通常設計為同時針對不同的基礎模型 (n, s, m) 或其他變體進行訓練。您可能需要編輯此腳本或通過參數傳遞來指定：
+            
             *   **基礎模型 (Base_model)**：n, s, m。腳本應能處理這些不同模型的訓練。
             *   **實驗名稱 (Experiment_name)**：根據測試表格提供 (測試案例編號)。這通常會作為 YOLO 訓練指令中 `name` 參數的一部分。
             *   **圖片尺寸 (Img_size)** 和 **週期 (Epochs)** 通常由目錄名稱隱含（例如 `640_20_100` 表示 img_size=640, epochs=20）。腳本應能從其所在路徑或配置中獲取這些值。
-            ```bash
-            ./run_8_trains_in_exp.sh # 根據腳本設計，可能需要傳遞參數
-            ```
 
         *   **對於單一訓練過程 (例如 `640_50_1000` 目錄下的腳本)**：
+
             如 `run_single_training_640_50_1000.sh` (範例名稱)。
+
+            ```bash
+            ./run_single_training_640_50_1000.sh 
+            ```
+            
             *   **修改腳本**：確保腳本內的 `BASE_MODEL_NAME` (例如 `yolov8m.pt`, `yolov8n.pt`, `yolov8s.pt`)、`EPOCHS` (50)、`IMG_SIZE` (640)、`YOUR_DATASET_YAML_PATH` (應指向此實驗目錄下由 `prepare_...` 腳本生成的 `data.yaml`) 和 `UNIQUE_RUN_NAME` (測試案例編號) 已正確設定。
             *   基礎模型 (如 `yolov8m.pt`) 應位於專案根目錄 (`AI-Train-yolov8-roboflow/yolov8m.pt`)。對於 `n` 和 `s` 模型，您需要確保對應的 `.pt` 文件也存在於該位置，並在腳本中指定正確的基礎模型文件名。
-            ```bash
-            ./run_single_training_640_50_1000.sh # 假設您將該腳本放置於此並配置好
-            ```
+
     *   訓練腳本內部應調用 `src/train_export_model.py`（或類似的核心訓練與匯出邏輯），並自動處理模型的訓練、評估以及匯出為 `.pt`、`.onnx` 和 TFJS (`_web_model`) 格式。
 
 2.  **記錄與收集結果**：
@@ -128,7 +135,7 @@
 5.  `./prepare_shared_dataset_in_exp_100.sh` 
 7.  `./run_8_trains_in_exp.sh` 
 8.  訓練完成後，檢查`training_runs_output/` 中模型訓練結果資料夾是否創建，並保存資料夾。
-9.  對所有其他參數組合重複步驟 4-8 (根據需要調整目錄和腳本)。
+9.  對所有其他參數組合重複步驟 3-8 (根據需要調整目錄和腳本)。
 
 ## 重要提示
 
