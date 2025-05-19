@@ -3,7 +3,7 @@
 # --- 訓練配置 ---
 BASE_MODEL_NAME="yolov8m.pt"
 IMG_SIZE=640
-EPOCHS=20
+EPOCHS=50
 NUM_INSTANCES=8
 NUM_GPUS_AVAILABLE=1 # <--- 重要：請將此值設置為您系統上可用於訓練的 GPU 數量
                      # 例如，如果您有 2 個 GPU (ID 0 和 1)，則設置為 2。

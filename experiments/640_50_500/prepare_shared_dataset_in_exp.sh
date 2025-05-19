@@ -11,7 +11,7 @@ AI_PROJECT_ROOT="$(cd "${EXPERIMENT_DIR}/../.." && pwd)" # 這應該解析為 AI
 DOWNLOADED_DATA_ROOT="${AI_PROJECT_ROOT}/annot-1"
 
 # 共享數據集採樣配置
-TOTAL_IMAGES_TO_SAMPLE=100 # 您希望新的共享數據集包含的圖片總數
+TOTAL_IMAGES_TO_SAMPLE=500 # 您希望新的共享數據集包含的圖片總數
 TRAIN_RATIO=7  # 訓練集比例部分
 VALID_RATIO=2  # 驗證集比例部分
 TEST_RATIO=1   # 測試集比例部分
