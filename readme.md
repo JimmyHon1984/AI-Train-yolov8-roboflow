@@ -1,119 +1,141 @@
-# YOLOv8 物件偵測模型訓練與 TF.js 導出
+# YOLOv8 物件偵測模型訓練與匯出指南 (新版腳本流程)
 
-本專案展示如何使用 Ultralytics YOLOv8 訓練一個自訂物件偵測模型，並將其導出為 TensorFlow.js (TF.js) 格式，以便在網頁應用程式中部署。
+本指南將引導您使用提供的腳本來訓練 YOLOv8 物件偵測模型，並將其轉換為 TensorFlow.js (TFJS) 格式供前端使用。
 
-## 功能
+**重要提示：** 本 README 專注於 `experiments` 目錄下的腳本化實驗流程。請務必先閱讀位於專案根目錄 (`AI-Train-yolov8-roboflow/`) 下的 **主 `README.md` 文件**，以完成環境設定、依賴套件安裝 (`pip install -r requirements.txt`) 以及其他重要的初始配置。
 
-*   使用 YOLOv8 進行模型訓練。
-*   將訓練好的模型導出為多種格式，主要目標為 TF.js。
-*   透過編輯 Python 腳本頂部的變數進行配置。
+## 目錄結構概覽
 
-## 先決條件
+    ```
+    AI-Train-yolov8-roboflow/
+    ├── experiments/
+    │   ├── collect_data.sh                       # 下載完整 Roboflow 數據集腳本
+    │   ├── 640_20_100/                           # 實驗參數目錄 (圖片640, 20週期, 100樣本)
+    │   │   ├── prepare_shared_dataset_in_exp_100.sh # 準備此實驗的抽樣數據腳本
+    │   │   └── run_8_trains_in_exp.sh            # 執行此實驗的多個訓練任務腳本
+    │   ├── 640_50_1000/                          # 實驗參數目錄 (圖片640, 50週期, 1000樣本)
+    │   │   ├── prepare_shared_dataset_in_exp_1000.sh # 準備此實驗的抽樣數據腳本
+    │   │   └── run_single_training_640_50_1000.sh  # 執行此實驗的單一訓練任務腳本 (範例名稱)
+    │   ├── ...                                   # 其他實驗參數目錄
+    │   └── dataset_roboflow_downloaded/          # (範例) 完整數據集下載位置
+    ├── src/                                      # 核心 Python 原始碼 (例如 train_export_model.py)
+    ├── yolov8n.pt                              # 基礎模型
+    ├── yolov8s.pt                              # 基礎模型
+    ├── yolov8m.pt                              # 基礎模型
+    ├── README.md                               # 專案主 README
+    └── requirements.txt                        # Python 依賴套件
+    ```
 
-在開始之前，請確保您的系統已安裝以下軟體：
 
-1.  **Python** (建議版本 3.11 或更高版本)
-2.  **pip** (Python 套件安裝程式)
+## 初始設定
 
-## 設定步驟
-
-1.  **複製 (或下載) 專案檔案**:
-    如果您是從 Git 儲存庫取得此專案：
+1.  **複製儲存庫 (Clone the Repository)**：
     ```bash
     git clone https://github.com/JimmyHon1984/AI-Train-yolov8-roboflow.git
     cd AI-Train-yolov8-roboflow
     ```
-    否則，請確保您已將 `train_export_model.py` 和 `requirements.txt` 檔案放置在您的工作目錄中。
 
-2.  **安裝 Python 依賴套件**:
-    在您的專案目錄中開啟終端機，然後執行：
-    ```bash
-    pip install -r requirements.txt
-    ```
+2.  **閱讀主 README.md 並安裝依賴**：
+    *   請務必詳細閱讀位於專案根目錄下的 `README.md` 文件，並依照指示完成環境設定和依賴套件安裝。
+    *   通常包括執行：
+        ```bash
+        pip install -r requirements.txt
+        ```
 
-    ***如果 traino_export_model 轉換模型中出現問題***:
-    如果您在導出為 TF.js 格式時遇到問題，您可能需要明確安裝 `tensorflowjs`：
-    ```bash
-    pip install tensorflowjs
-    ```
+## 數據準備流程
 
-## 工作流程
+1.  **下載完整數據集 (使用 `collect_data.sh`)**：
+    *   導航到 `experiments` 目錄：
+        ```bash
+        cd experiments
+        ```
+    *   執行 `collect_data.sh` 腳本以下載完整的訓練數據集。此腳本將處理原主 README 中「第 1 部分 下載數據集」的步驟。
+        ```bash
+        ./collect_data.sh
+        ```
+    *   **注意**：此腳本可能需要您預先配置 Roboflow API 金鑰或遵循其內部提示進行操作。請確保數據集成功下載到預期位置 (例如 `experiments/dataset_roboflow_downloaded/`，具體取決於腳本設計)。下載的資料夾中應包含 `dataset.yaml` 文件。
 
-### 1. 下載數據集
+2.  **為特定實驗準備抽樣數據集**：
+    *   對於您計劃執行的每一個實驗組合（例如 `640_20_100`，`640_50_1000` 等），您需要進入其對應的子目錄並準備該實驗所需的抽樣數據。
+    *   例如，若要準備 `640_20_100` 實驗的數據：
+        ```bash
+        cd 640_20_100  # 假設您已在 experiments 目錄下
+        ```
+    *   執行該目錄下的數據準備腳本 (例如 `prepare_shared_dataset_in_exp_100.sh` 或類似名稱的腳本)：
+        ```bash
+        ./prepare_shared_dataset_in_exp_100.sh # 請替換為實際的腳本名稱
+        ```
+    *   此腳本會從步驟 1 下載的完整數據集中，按照該實驗設定的數量（例如 100 個樣本）和固定的 7:1:2 比例（訓練:驗證:測試集）複製或連結圖片和標籤到一個該實驗專用的數據集位置 (例如該實驗目錄下的 `exp_dataset/` 子目錄內，並生成對應的 `data.yaml`)。
+    *   對每個實驗參數組合目錄（`640_20_500`、`640_50_100` 等）重複此步驟。返回上一層目錄可使用 `cd ..`。
 
-本專案直接從 Roboflow Universe 下載預先準備好的數據集。
+## 模型訓練與匯出流程
 
-*   **執行以下命令以下載並解壓縮數據集：**
-    
-    ### 執行 Python 腳本下載花卉數據集
+1.  **執行訓練與匯出腳本**：
+    *   進入您已準備好數據的特定實驗目錄。例如，繼續以 `640_20_100` 為例：
+        ```bash
+        # 假設您已在 experiments/640_20_100 目錄中
+        # 如果不在，請 cd experiments/640_20_100
+        ```
+    *   執行該目錄下的訓練腳本 (例如 `run_8_trains_in_exp.sh` 或針對 `640_50_1000` 的單一訓練腳本)。
 
-    此選項將下載一個花卉數據集，其中包含約 3000 張圖片，涵蓋 13 個類別。
+        *   **對於多個並行訓練 (例如 `run_8_trains_in_exp.sh`)**：
+            此類型腳本通常設計為同時針對不同的基礎模型 (n, s, m) 或其他變體進行訓練。您可能需要編輯此腳本或通過參數傳遞來指定：
+            *   **基礎模型 (Base_model)**：n, s, m。腳本應能處理這些不同模型的訓練。
+            *   **實驗名稱 (Experiment_name)**：根據測試表格提供 (測試案例編號)。這通常會作為 YOLO 訓練指令中 `name` 參數的一部分。
+            *   **圖片尺寸 (Img_size)** 和 **週期 (Epochs)** 通常由目錄名稱隱含（例如 `640_20_100` 表示 img_size=640, epochs=20）。腳本應能從其所在路徑或配置中獲取這些值。
+            ```bash
+            ./run_8_trains_in_exp.sh # 根據腳本設計，可能需要傳遞參數
+            ```
 
-    執行 `get_data.py` 腳本以下載數據集：
+        *   **對於單一訓練過程 (例如 `640_50_1000` 目錄下的腳本)**：
+            如 `run_single_training_640_50_1000.sh` (範例名稱)。
+            *   **修改腳本**：確保腳本內的 `BASE_MODEL_NAME` (例如 `yolov8m.pt`, `yolov8n.pt`, `yolov8s.pt`)、`EPOCHS` (50)、`IMG_SIZE` (640)、`YOUR_DATASET_YAML_PATH` (應指向此實驗目錄下由 `prepare_...` 腳本生成的 `data.yaml`) 和 `UNIQUE_RUN_NAME` (測試案例編號) 已正確設定。
+            *   基礎模型 (如 `yolov8m.pt`) 應位於專案根目錄 (`AI-Train-yolov8-roboflow/yolov8m.pt`)。對於 `n` 和 `s` 模型，您需要確保對應的 `.pt` 文件也存在於該位置，並在腳本中指定正確的基礎模型文件名。
+            ```bash
+            ./run_single_training_640_50_1000.sh # 假設您將該腳本放置於此並配置好
+            ```
+    *   訓練腳本內部應調用 `src/train_export_model.py`（或類似的核心訓練與匯出邏輯），並自動處理模型的訓練、評估以及匯出為 `.pt`、`.onnx` 和 TFJS (`_web_model`) 格式。
 
-    ```bash
-    python get_data.py
-    ```
+2.  **記錄與收集結果**：
+    *   訓練完成後，相關的輸出（包括模型檔案和效能指標）會自動儲存。
+    *   **儲存位置**：通常在執行訓練腳本的實驗目錄下，YOLOv8 會創建一個類似 `runs/train/YOUR_EXPERIMENT_NAME/` 的輸出資料夾。
+    *   **模型檔案**：
+        *   TensorFlow.js 格式：`YOUR_EXPERIMENT_NAME_web_model` 資料夾。
+        *   PyTorch 格式：`weights/best.pt` (或 `last.pt`)。
+        *   ONNX 格式：`best.onnx` (或 `last.onnx`)。
+    *   **效能指標**：
+        *   mAP (mean Average Precision) 等指標通常記錄在輸出資料夾內的 `results.csv` 或其他日誌文件中。
+        *   訓練時間通常可以從腳本的控制台輸出或日誌中獲取。
+    *   請務必為每個測試案例記錄這些重要數據。
 
+## 測試參數組合
 
-### 2. 準備自定義數據集樣本
+請依照以下參數組合，重複上述「為特定實驗準備抽樣數據集」和「執行訓練與匯出腳本」的步驟：
 
-如果您想從原始數據集中創建一個較小的樣本以加速訓練或測試，可以使用 dataset_sampler.py 腳本：
+*   **週期 (Epochs)**：20, 30, 40, 50
+*   **圖片尺寸 (Img_size)**：640 (固定)
+*   **基礎模型 (Base_model)**：yolov8n, yolov8s, yolov8m
+*   **數據集樣本數**：根據您的實驗目錄設定（例如 100, 500, 1000）。
 
-*   **執行以下命令以調整數據集：**
+## 範例測試流程
 
-    此選項將數據集分拆一部份，創建一個較小的樣本以加速訓練或測試。
-    
-    ```bash
-    python dataset_sampler.py \
-        --src original_dataset \
-        --total 500 \
-        --train-ratio 8 \
-        --test-ratio 1 \
-        --valid-ratio 1 \
-        --output sampled_dataset
-    ```
+以測試案例：Epochs=20, Img_size=640, Base_model=yolov8n, Dataset_samples=100 為例。
 
-**參數說明：**
+1.  確保您在 `AI-Train-yolov8-roboflow/` 目錄下。
+2.  `cd experiments`
+3.  `./collect_data.sh` (如果尚未執行或數據集有更新)
+4.  `cd 640_20_100`
+5.  `./prepare_shared_dataset_in_exp_100.sh` (假設腳本名如此)
+6.  修改/配置 `run_8_trains_in_exp.sh` 或創建一個單獨的運行腳本，確保它會使用 `yolov8n.pt` 作為基礎模型，epochs=20, img_size=640，並將實驗名稱設置為對應的測試案例編號。
+7.  `./run_8_trains_in_exp.sh` (或您的特定運行腳本)
+8.  訓練完成後，進入 `runs/train/YOUR_CHOSEN_EXPERIMENT_NAME/` 收集 `.pt`, `.onnx`, `_web_model` 檔案以及 mAP 和訓練時間。
+9.  對所有其他參數組合重複步驟 4-8 (根據需要調整目錄和腳本)。
 
-*   **`--src 或 -s`**: **(必需)** 原始數據集的路徑
-*   **`--total 或 -t`**: **(必需)** 要採樣的圖像總數
-*   **`--train-ratio 或 -tr`**: (可選) 訓練集比例，默認值為 7
-*   **`--test-ratio 或 -te`**: (可選) 測試集比例，默認值為 1
-*   **`--valid-ratio 或 -v`**: (可選) 驗證集比例，默認值為 2
-*   **`--output 或 -o`**: **(必需)** 採樣數據集的輸出目錄
+## 重要提示
 
-腳本將：
+*   **腳本適應性**：您可能需要根據 `run_...sh` 腳本的具體實現方式來調整傳遞參數（如基礎模型、實驗名稱）的方法。有些參數可能硬編碼在腳本中，有些可能通過命令行參數傳遞。
+*   **基礎模型文件**：確保 `yolov8n.pt`、`yolov8s.pt`、`yolov8m.pt` 文件存在於您的專案根目錄 (`AI-Train-yolov8-roboflow/`) 或腳本可以訪問到的正確路徑。這些文件需要您從 Ultralytics 或其他來源預先下載。
+*   **輸出管理**：由於您會運行多次實驗，請確保每個實驗的輸出都保存在唯一的實驗名稱下，以便區分和比較結果。
+*   **`640_50_1000` 特例**：此實驗（或類似的大型單一實驗）是單獨運行的，請使用為其設計的單一訓練腳本，並確保其配置正確。
+*   **腳本權限**：如果遇到 `Permission denied` 錯誤，請確保您的 `.sh` 腳本具有執行權限：`chmod +x your_script_name.sh`。
 
-1. 從原始數據集中隨機選取指定數量的圖像和對應的標籤文件
-2. 按指定比例分配到訓練、測試和驗證集
-3. 在輸出目錄中創建相同的目錄結構
-4. 創建更新後的 data.yaml 文件以供訓練使用
-
-### 3. 執行訓練與導出
-
-完成後，開始執行訓練模型與導出，在終端機中執行以下命令：
-
-在第一次運行, ultralytics 會檢查並安裝缺失的 dependency
-
-*   **執行以下命令以訓練模型與導出：**
-    ```bash
-    python train_export_model.py \
-        --data_yaml /content/AI-Train-yolov8-roboflow/sampler/data.yaml \  
-        --base_model yolov8m.pt \
-        --epochs 2 \
-        --img_size 640 \
-        --project_dir my_training \
-        --experiment_name fruit_detector \
-        --export_format tfjs
-    ```
-
-**參數說明：**
-
-*   **`--data_yaml`**: **(必需)** 將此變數的值更新為您在上一步數據集中找到的 `data.yaml` 檔案的完整路徑。
-*   **`--base_model`**: (可選) 預設為 `"yolov8m.pt"`。您可以更改為其他 YOLOv8 模型，如 `"yolov8s.pt"` 或 `"yolov8l.pt"`。
-*   **`--epochs`**: (可選) 訓練的週期數，預設為 `20`。
-*   **`--img_size`**: (可選) 訓練和導出時的圖像大小，預設為 `640`。
-*   **`--project_dir my_training`**: (可選) 儲存訓練結果的父目錄名稱，預設為 `"training_runs"`。
-*   **`--experiment_name`**: (可選) 特定訓練運行的子目錄名稱，預設為 `"orange_detection_exp"`。
-*   **`--export_format`**: (可選) 導出的模型格式，預設為 `"tfjs"`。其他選項包括 `'onnx'`, `'torchscript'`, `'tflite'` 等。
