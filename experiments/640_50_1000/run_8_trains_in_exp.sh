@@ -16,7 +16,7 @@ BASE_MODEL_PATH="${AI_PROJECT_ROOT}/${BASE_MODEL_NAME}"
 # !!! 重要：請將此路徑修改為您特定數據集的 data.yaml 文件路徑 !!!
 # 例如：YOUR_DATASET_YAML_PATH="${AI_PROJECT_ROOT}/datasets/my_dataset_1000_samples/data.yaml"
 # 或者：YOUR_DATASET_YAML_PATH="${EXPERIMENT_DIR}/specific_dataset_configs/dataset_1000.yaml"
-YOUR_DATASET_YAML_PATH="/path/to/your/specific_dataset_for_1000_items/data.yaml" # <--- *** 請務必修改此處 ***
+YOUR_DATASET_YAML_PATH="${EXPERIMENT_DIR}/shared_dataset_output/data.yaml"
 
 TRAINING_PROJECT_PARENT_DIR="${EXPERIMENT_DIR}/training_runs_output"
 # 構建一個唯一的運行名稱
